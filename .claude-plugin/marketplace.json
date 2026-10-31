@@ -1,0 +1,20 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "postmoderno-skills",
+  "owner": {
+    "name": "postmoderno",
+    "url": "https://postmoderno.io"
+  },
+  "metadata": {
+    "description": "Agent skills for writing and scheduling social posts with postmoderno."
+  },
+  "plugins": [
+    {
+      "name": "postmoderno",
+      "source": "./",
+      "description": "Write X posts and threads grounded in X's open-sourced ranking code, and schedule them through postmoderno when it is connected.",
+      "category": "marketing",
+      "homepage": "https://postmoderno.io"
+    }
+  ]
+}

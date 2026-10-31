@@ -1,0 +1,20 @@
+{
+  "name": "postmoderno",
+  "version": "0.1.0",
+  "description": "Write social posts grounded in platform ranking evidence, and schedule them with postmoderno.",
+  "author": {
+    "name": "postmoderno",
+    "url": "https://postmoderno.io"
+  },
+  "homepage": "https://postmoderno.io",
+  "repository": "https://github.com/postmoderno/postmoderno-skills",
+  "keywords": [
+    "x",
+    "twitter",
+    "social media",
+    "writing",
+    "scheduling",
+    "postmoderno"
+  ],
+  "license": "MIT"
+}
