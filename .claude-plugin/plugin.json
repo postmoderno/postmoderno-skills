@@ -1,7 +1,7 @@
 {
   "name": "postmoderno",
-  "version": "0.1.0",
-  "description": "Write social posts grounded in platform ranking evidence, and schedule them with postmoderno.",
+  "version": "0.2.0",
+  "description": "Write X and LinkedIn posts grounded in platform ranking evidence, and schedule them with postmoderno.",
   "author": {
     "name": "postmoderno",
     "url": "https://postmoderno.io"
@@ -11,6 +11,7 @@
   "keywords": [
     "x",
     "twitter",
+    "linkedin",
     "social media",
     "writing",
     "scheduling",

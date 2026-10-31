@@ -12,7 +12,7 @@
     {
       "name": "postmoderno",
       "source": "./",
-      "description": "Write X posts and threads grounded in X's open-sourced ranking code, and schedule them through postmoderno when it is connected.",
+      "description": "Write X posts and threads and LinkedIn feed posts using dated ranking evidence, with optional postmoderno scheduling.",
       "category": "marketing",
       "homepage": "https://postmoderno.io"
     }
