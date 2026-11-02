@@ -12,10 +12,9 @@ Use this when the postmoderno tools are connected and the user wants a post to g
 ## Creating the draft
 
 - **Single post**: `create_post` with the body and the X account id in `target_account_ids`. Generate one `idempotency_key` per distinct creation and reuse it unchanged only on retries of that same call.
-- **Thread**: `create_post` for the first post, then `add_reply` once per further post, in order, each with its own idempotency key. Each reply goes out `delay_sec` after the one before it publishes (default 60 seconds), which is fine for threads.
+- **Thread**: `create_post` for the first post, then `add_reply` once per further post, in order, each with its own idempotency key. Each reply goes out `delay_sec` after the one before it publishes (default 60 seconds), which is fine for threads. postmoderno has verified that scheduled X threads publish this way.
 - **Images**: pass public image URLs with alt text in `media`, or use `create_upload_url` for a local file, before scheduling. Always write alt text.
 - Keep X posts within **280 weighted characters**. postmoderno validates X’s weighted length: recognised URLs count as 23, emoji sequences and CJK characters as 2, and text is normalised to NFC before counting. Premium does not bypass this product limit.
-- **Thread delivery is not verified.** X's [Manage Posts docs](https://docs.x.com/x-api/posts/manage-tweets/introduction) restrict self-serve API replies to authors who mentioned or quoted the replying account; they do not clarify self-replies. Explain this before scheduling an X thread, offer a single post or native publishing, and never publish a test without the user asking for one.
 - **One X account per post.** If the user targets two X accounts with the same text, warn them: X's automation rules forbid identical or near-identical posts across accounts. Offer a rewritten version for the second account. Posting the same idea to LinkedIn or another platform is fine.
 
 ## Preview, confirm, schedule

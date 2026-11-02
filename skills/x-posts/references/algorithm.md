@@ -134,7 +134,7 @@ Statements:
 
 - The code never looks at which app posted, except as one input feature to the bot detector (`bdsm/rust/abuse-v3-features/src/lib.rs:187-194`). There is no evidence that scheduled or API posts get less reach, and none that they are guaranteed safe.
 - Cadence features are not evidence that minute-level timing jitter avoids detection or improves reach. Honour the user's chosen schedule.
-- [X's Manage Posts documentation](https://docs.x.com/x-api/posts/manage-tweets/introduction), checked 2026-10-31, says self-serve replies require the original author to have mentioned or quoted the replying account. It does not clarify self-thread exemptions. Do not promise that API threads work without a verified product test.
+- [X's Manage Posts documentation](https://docs.x.com/x-api/posts/manage-tweets/introduction), checked 2026-10-31, says self-serve replies require the original author to have mentioned or quoted the replying account. It does not clarify self-thread exemptions. postmoderno has since verified that its scheduled self-threads publish (reported 2026-11-02); other API clients may differ.
 
 ## Diagnosing a reach drop
 

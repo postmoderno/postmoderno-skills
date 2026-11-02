@@ -55,7 +55,7 @@ python3 skills/x-posts/scripts/check_x_post.py drafts.txt --json
 claude plugin validate . --profile directory
 ```
 
-The checker is an estimate, not a complete twitter-text implementation. Use X's composer or the official library for exact URL and emoji edge cases. Scheduling X threads through postmoderno remains unverified under X's self-serve reply restrictions.
+The checker is an estimate, not a complete twitter-text implementation. Use X's composer or the official library for exact URL and emoji edge cases.
 
 ## License
 
