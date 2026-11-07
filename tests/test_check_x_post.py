@@ -108,6 +108,12 @@ class WorkflowTests(unittest.TestCase):
         result = checker.check_post("a@b.com @real_user @abcdefghijklmnop @пример", 280)
         self.assertEqual(result["mentions"], ["@real_user"])
 
+    def test_mention_note_counts_distinct_accounts(self):
+        repeated = checker.check_post("thanks @alice, and @Alice again", 280)
+        self.assertFalse(any("accounts mentioned" in n for n in repeated["notes"]))
+        two = checker.check_post("thanks @alice and @bob", 280)
+        self.assertTrue(any(n.startswith("2 accounts mentioned") for n in two["notes"]))
+
 
 if __name__ == "__main__":
     unittest.main()

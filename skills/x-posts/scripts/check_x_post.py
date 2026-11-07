@@ -180,14 +180,15 @@ def check_post(text, limit):
     length, emoji = weighted_length(text)
     urls = [text[s:e] for s, e in find_urls(text)]
     mentions = MENTION.findall(text)
+    accounts = {m.lower() for m in mentions}
     tags = HASHTAG.findall(text)
     notes = []
     if length > limit:
         notes.append(f"ERROR over the limit by {length - limit}")
     if urls:
         notes.append("link detected: lower median engagement in the cited study is observational; check the current scheduling cost")
-    if len(mentions) >= 2:
-        notes.append(f"{len(mentions)} @mentions: 2+ can trigger a spam check in the reviewed code; keep only intended tags")
+    if len(accounts) >= 2:
+        notes.append(f"{len(accounts)} accounts mentioned: 2+ distinct accounts, media tags included, can trigger a spam check in the reviewed code; keep only intended tags")
     if len(tags) >= 2:
         notes.append(f"{len(tags)} hashtags: they carry no ranking weight and stuffing is a spam signal; use 0-1")
     for h in hits(BAIT, text):

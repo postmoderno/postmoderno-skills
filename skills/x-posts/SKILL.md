@@ -10,18 +10,18 @@ Your job is to turn what the user wants to say into X posts that real people sto
 
 ## What X's ranker actually rewards
 
-X ranks each post per viewer. A model predicts how likely *that viewer* is to take each action, and a weighted sum of those predictions is the score (`home-mixer/params/param.rs`, published defaults synced 2026-10-30; experiments may differ):
+X ranks each post per viewer. A model predicts how likely *that viewer* is to take each action, and a weighted sum of those predictions is the score (`home-mixer/params/param.rs`, published defaults synced 2026-11-06; X retunes these often, and experiments may differ):
 
 | Action the viewer might take | Weight |
 |---|---|
 | Copy the post's link (to send it somewhere) | 20 |
 | Reply · Quote · Share via DM | 5 each |
 | Follow the author | 4 |
-| Share | 2 |
+| Share | 2.118 |
 | Repost | 1 |
-| Like | 0.66 |
+| Like | 0.708 |
 | Open a link in the post | 0.2 |
-| Report · Mute · Not interested · Block | −234 · −59 · −52 · −31 |
+| Report · Mute · Not interested · Block | −234 · −58.8 · −53.07 · −31.2 |
 
 Three consequences shape everything below:
 
@@ -32,9 +32,9 @@ Three consequences shape everything below:
 Other mechanics worth knowing:
 
 - **The published For You pipeline filters candidates older than 48 hours.** This is not a lifetime limit on a post, and does not prove the posting hour is irrelevant.
-- **Small accounts get a launch window.** An original post (not a reply or repost) from an author with ≤50k followers, younger than 2 hours and under 200 impressions, can be lifted into a viewer's top 16. Eligibility is not guaranteed distribution; make each original post complete.
+- **Small accounts get a launch window.** An original post (not a reply or repost) from an author with ≤50k followers, younger than 2 hours and under 200 impressions, can be lifted toward a viewer's top 16, though the out-of-network discount can still pull it lower. Eligibility is not guaranteed distribution; make each original post complete.
 - **Make the opening post complete.** The published defaults filter out-of-network replies, with a configurable exception for Phoenix-retrieved replies. Thunder normally retrieves only the early replies in a linear self-thread. These are feed-path constraints, not guarantees about every way a thread can be discovered.
-- **Author diversity reduces repeated authors within one feed response.** The second post gets a multiplier of ×0.625, the third about ×0.44. This does not specify a cooldown or prove that spacing posts by a particular number of hours helps.
+- **Author diversity reduces repeated authors within one feed response.** The second post gets a multiplier of ×0.625, the third about ×0.44. These values sit in a file that lags the published weights, so treat them as approximate. This does not specify a cooldown or prove that spacing posts by a particular number of hours helps.
 - **Mutuals matter.** On original posts, the reply weight jumps from 5 to 20 when author and viewer follow each other. Posts that start conversations with the people who follow you back are disproportionately strong.
 
 ## Things that get a post or account labelled as spam
@@ -42,13 +42,13 @@ Other mechanics worth knowing:
 X runs classifiers on new posts. Some labels limit recommendations to non-followers; others hide posts more widely. The effect depends on the label, not a generic spam verdict. These are the ones an honest writer trips by accident:
 
 - **Asking for engagement**: "like if…", "RT to…", "follow for more", "drop a 🔥 below", "reply and I'll send you…". The engagement-baiting label is applied even to high-reputation accounts, and since July 2026 repeat offenders lose revenue sharing. A genuine, specific question about the topic is not bait ("What did you replace Zapier with?" is fine; "Thoughts? 👇" is filler at best).
-- **Two or more @mentions** in one post send it through a real-time LLM spam check. Mention at most one account, and only one that would want to be tagged.
+- **Two or more accounts** mentioned in the text or tagged in media send a post through a real-time LLM spam check. Mention or tag at most one account, and only one that would want it.
 - **Near-duplicate text**, on one account or across several (X's automation rules forbid it, and a copypasta classifier clusters it). Never post the same words to two accounts or repeat last week's post; give each installment of a series fresh wording.
 - **AI-slop style**: X has `llm_slop_post` and `llm_slop_user` labels; the account-level one limits reach to non-followers for 7 days. In July 2026 X removed 42,000 accounts posting "thought-leadership slop". Write like the specific person you're writing for, not like a content generator (see "Voice" below).
 - **Hashtag stuffing**: hashtags have no ranking weight, and hashtag abuse is a spam category. Use none by default; one at most when it's a real community or event tag.
 - **Low-quality or bad links**: X scores URL reputation. Link to reputable domains, never pin a post with a dodgy link, and don't pair a link with @mentions of strangers.
 
-If the user's reach suddenly drops, tell them to check X's **Under the Hood** report (Settings), which shows labels limiting their account or posts, before guessing.
+If the user's reach suddenly drops, tell them to check X's **Under the Hood** report (`x.com/i/jf/under_the_hood`, a pilot for a small group of accounts at least a year old with 10 or more posts in the prior month), which shows labels limiting their account or posts, before guessing.
 
 ## Workflow
 
