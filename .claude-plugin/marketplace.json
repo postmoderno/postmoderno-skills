@@ -12,7 +12,7 @@
     {
       "name": "postmoderno",
       "source": "./",
-      "description": "Write X posts and threads and LinkedIn feed posts using dated ranking evidence, with optional postmoderno scheduling.",
+      "description": "Write X posts and threads and LinkedIn feed posts using dated ranking evidence, turn current topics into posts with treg, with optional postmoderno scheduling.",
       "category": "marketing",
       "homepage": "https://postmoderno.io"
     }
