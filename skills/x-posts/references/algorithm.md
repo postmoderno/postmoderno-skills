@@ -2,7 +2,7 @@
 
 Sources, in order of trust:
 
-1. **Code**: the open-sourced For You algorithm, [xai-org/x-algorithm](https://github.com/xai-org/x-algorithm/tree/3b6919f87532e57063bb3f1e85c2f509323b513e), commit `3b6919f87532e57063bb3f1e85c2f509323b513e` (2026-11-07). Paths below are relative to that snapshot. The published defaults can differ from experiments or later production settings.
+1. **Code**: the open-sourced For You algorithm, [xai-org/x-algorithm](https://github.com/xai-org/x-algorithm/tree/30647a85a20cbdd114169beb9973680c4dc4f401), commit `30647a85a20cbdd114169beb9973680c4dc4f401` (2026-11-14). Paths below are relative to that snapshot. The published defaults can differ from experiments or later production settings.
 2. **Statements**: what X staff said publicly, with dates.
 3. **Data studies**: large third-party samples (Buffer, Sprout, Metricool). These show correlation, not cause.
 
@@ -27,11 +27,10 @@ Anything not listed here is unknown. Say so rather than fill the gap with folklo
 
 Phoenix, a transformer, reads the viewer's recent engagement history and predicts, for each candidate post, the probability of each action (`xai-value-model/phoenix_scores.rs`). `RankingScorer` computes `score = Σ weight × P(action)` (`xai-value-model/scoring.rs`).
 
-Weights (`home-mixer/params/param.rs:404-533`, synced 2026-11-06):
+Weights (`home-mixer/params/param.rs:447-576`, synced 2026-11-13):
 
 | Action | Weight |
 |---|---|
-| share_via_copy_link | 20.0 |
 | reply | 5.0 (20.0 on original posts between mutual follows) |
 | quote | 5.0 |
 | share_via_dm | 5.0 |
@@ -47,6 +46,7 @@ Weights (`home-mixer/params/param.rs:404-533`, synced 2026-11-06):
 | quoted_click | 0.05 |
 | post_unexplored | 0.015 (in-network posts only by default) |
 | cont_dwell_time | 0.0075 |
+| share_via_copy_link | 0 (20.0 from 2026-08-13 until the 2026-11-12 sync) |
 | video_open, video quality view, profile click | 0 |
 | not_dwelled | −0.02 |
 | block_author | −31.2 |
@@ -54,11 +54,11 @@ Weights (`home-mixer/params/param.rs:404-533`, synced 2026-11-06):
 | mute_author | −58.8 |
 | report | −234 |
 
-How to read them (the repo's own warning, `README.md`): weights multiply the *predicted probability for this viewer*, not raw counts. "One report cancels 468 likes" is wrong; reports are weighted high because they are more than 1000× rarer than likes. Engagement only trains ranking when it happens on a post served in the Home timeline, so coordinated "go like this" raids from a group chat have no ranking effect (`param.rs:399-403`).
+How to read them (the repo's own warning, `README.md`): weights multiply the *predicted probability for this viewer*, not raw counts. "One report cancels 468 likes" is wrong; reports are weighted high because they are more than 1000× rarer than likes. Engagement only trains ranking when it happens on a post served in the Home timeline, so coordinated "go like this" raids from a group chat have no ranking effect (`param.rs:442-446`).
 
 `cont_click_dwell_time` and `cont_dwell_time` multiply a predicted amount of time instead of a probability, so don't compare them with the other rows.
 
-X retunes these values. The main changes between the first published weights (2026-08-13) and the 2026-11-06 sync: like 0.5 → 0.708, not interested −43.2 → −53.07, click 0.4 → 0.274, share 2.0 → 2.118, dwell 0 → 0.05, cont_click_dwell_time 0 → 0.385, cont_dwell_time 0.004 → 0.0075, video open 0.05 → 0 (it was 0.02 before the 2026-11-05 change). Copy link, reply, quote, DM, follow, repost and report held still. Check the file before quoting a number.
+X retunes these values. The main changes between the first published weights (2026-08-13) and the 2026-11-13 sync: share_via_copy_link 20 → 0 (2026-11-12 sync, in the repo 2026-11-13), like 0.5 → 0.708, not interested −43.2 → −53.07, click 0.4 → 0.274, share 2.0 → 2.118, dwell 0 → 0.05, cont_click_dwell_time 0 → 0.385, cont_dwell_time 0.004 → 0.0075, video open 0.05 → 0 (it was 0.02 before the 2026-11-05 change). Reply, quote, DM, follow, repost and report held still. Check the file before quoting a number.
 
 Bookmarks are a training label but carry **no weight** in the score.
 
@@ -70,11 +70,11 @@ Bookmarks are a training label but carry **no weight** in the score.
 
 ## Adjustments after scoring
 
-The author diversity and out-of-network values below are defaults in `vm-ranker/params.rs`, which doesn't follow the synced file: it still lists the like at 0.5. Treat them as approximate.
+The author diversity and out-of-network values below are defaults in `vm-ranker/params.rs`, which doesn't follow the synced file: it still lists the like at 0.5 and share_via_copy_link at 20. Treat them as approximate.
 
 - **Author diversity** (`vm-ranker/params.rs:175-192`): the k-th extra post from the same author in one response is multiplied by `0.75·0.5^k + 0.25`, giving ×1, ×0.625, ×0.44, ×0.34 and never below ×0.25.
 - **Out-of-network discount**: ×0.75 for posts from accounts the viewer doesn't follow, and also for replies and reposts from accounts they do follow.
-- **New-author boost** (`author_cold_start.rs`, `param.rs:608-687`): an original post, from an author with ≤50,000 followers, ≤2 h old, with fewer than 200 home impressions, can take on the score of the post in position 16. One per feed request: X samples a reward from each eligible post's likes per Home view, keeps the top two samples, and lifts whichever of those has the higher ranking score. The post must already rank within the top 97% of scored candidates (`LowImpressionsMaxPositionRatio`), and experiment arms can limit which authors qualify for some viewers; by default every viewer is in the open holdout. In the published defaults the out-of-network and author multipliers apply after the lift (`xai-value-model/scoring.rs`), so a lifted out-of-network post can land lower.
+- **New-author boost** (`author_cold_start.rs`, `param.rs:663-742`): an original post, from an author with ≤50,000 followers, ≤2 h old, with fewer than 200 home impressions, can take on the score of the post in position 16. One per feed request: X samples a reward from each eligible post's likes per Home view, keeps the top two samples, and lifts whichever of those has the higher ranking score. The post must already rank within the top 97% of scored candidates (`LowImpressionsMaxPositionRatio`), and experiment arms can limit which authors qualify for some viewers; by default every viewer is in the open holdout. In the published defaults the out-of-network and author multipliers apply after the lift (`xai-value-model/scoring.rs`), so a lifted out-of-network post can land lower.
 - **Diversity rerank** (`vm-ranker/`): the top 150 are reordered so posts with similar embeddings aren't stacked together.
 - **Debias**: `VMRankerSendDebiasInputs` has been true since 2026-10-27, but `UserDebiasEnabled` reads false in the lagging `vm-ranker/params.rs`. Whether this step runs is unknown.
 
@@ -95,7 +95,9 @@ What triggers labels:
 
 | Trigger | Label | Source |
 |---|---|---|
-| Engagement baiting / farming (Grok classifier) | post SpamHighRecall, **even for high-reputation accounts** | `grox/flows/ptos/task_write_safety_post_annotations_result_sink.py:233-248` |
+| Engagement baiting / farming (Grok classifier) | post SpamHighRecall, **even for high-reputation accounts** | `grox/flows/ptos/task_write_safety_post_annotations_result_sink.py:233-279` |
+| Promoting shares (Grok classifier, in the repo since 2026-11-13; what counts isn't published) | post SpamHighRecall and PromotesShares, **even for high-reputation accounts** | same file |
+| Promoting clicks or replies (Grok classifier, in the repo since 2026-11-13) | post PromotesClicks or PromotesReplies; what those labels do isn't published | same file |
 | ≥2 distinct accounts mentioned in the text or tagged in media | sends it to a real-time LLM spam check | `grox/flows/ptos/task_filter.py:37-67` |
 | `llm_slop_post` | post RiskyHighVizReply, 30 days | `abuse-enforcement-service/service-lib/rules/enforcement_post.yaml:39-44` |
 | `llm_slop_user` | account SpamHighRecall, 7 days | `enforcement_user.yaml:118-123` |
@@ -107,7 +109,7 @@ What triggers labels:
 | High spam-reports-per-like history | every new post AGATHA_SPAM, 1 week | `agatha/` rules |
 | Mechanical posting cadence | modelled by the `bdsm` bot detector; thresholds redacted | `bdsm/README.md` |
 
-High-reputation accounts (user-cred ≥54, roughly PageRank over follows and recent likes and reposts) are exempt from most rule-based spam labels, but not from the engagement-bait ones.
+High-reputation accounts (user-cred ≥54, roughly PageRank over follows and recent likes and reposts) are exempt from most rule-based spam labels, but not from the engagement-bait or share-promotion ones.
 
 Statements:
 
@@ -168,11 +170,11 @@ X's [**Under the Hood**](https://x.com/i/jf/under_the_hood) report shows the lab
 
 The code paths above refer to the pinned snapshot, rather than floating `main`. Key entry points:
 
-- [Scoring defaults and probability caveat](https://github.com/xai-org/x-algorithm/blob/3b6919f87532e57063bb3f1e85c2f509323b513e/home-mixer/params/param.rs#L375).
-- [Reply filtering and configurable exception](https://github.com/xai-org/x-algorithm/blob/3b6919f87532e57063bb3f1e85c2f509323b513e/home-mixer/filters/oon_retweet_reply_filter.rs).
-- [Thunder reply retrieval](https://github.com/xai-org/x-algorithm/blob/3b6919f87532e57063bb3f1e85c2f509323b513e/thunder/posts/post_store.rs#L330).
-- [Author diversity parameters](https://github.com/xai-org/x-algorithm/blob/3b6919f87532e57063bb3f1e85c2f509323b513e/vm-ranker/params.rs#L175).
-- [Posting app passed to BotMaker](https://github.com/xai-org/x-algorithm/blob/3b6919f87532e57063bb3f1e85c2f509323b513e/botmaker/scarecrow_features/src/main/java/com/twitter/scarecrow/features/FeaturesOfTweet.java#L66).
+- [Scoring defaults and probability caveat](https://github.com/xai-org/x-algorithm/blob/30647a85a20cbdd114169beb9973680c4dc4f401/home-mixer/params/param.rs#L418).
+- [Reply filtering and configurable exception](https://github.com/xai-org/x-algorithm/blob/30647a85a20cbdd114169beb9973680c4dc4f401/home-mixer/filters/oon_retweet_reply_filter.rs).
+- [Thunder reply retrieval](https://github.com/xai-org/x-algorithm/blob/30647a85a20cbdd114169beb9973680c4dc4f401/thunder/posts/post_store.rs#L330).
+- [Author diversity parameters](https://github.com/xai-org/x-algorithm/blob/30647a85a20cbdd114169beb9973680c4dc4f401/vm-ranker/params.rs#L175).
+- [Posting app passed to BotMaker](https://github.com/xai-org/x-algorithm/blob/30647a85a20cbdd114169beb9973680c4dc4f401/botmaker/scarecrow_features/src/main/java/com/twitter/scarecrow/features/FeaturesOfTweet.java#L66).
 
 Web sources (statements are attributed claims, studies are observational):
 

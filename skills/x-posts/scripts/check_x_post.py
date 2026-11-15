@@ -57,6 +57,8 @@ BAIT = [
     r"\bfollow (me|for more|@)", r"\bdrop an? .{1,20} (below|in the (replies|comments))",
     r"\b(comment|reply) (below|with|\")", r"\btag (someone|a friend|a founder|\d+)",
     r"\bsmash (that|the)\b", r"\bbookmark (this|for later)\b", r"\bdon'?t forget to (like|follow|share)\b",
+    r"\b(share|send|forward|pass) (this|it)( (post|tweet|thread))? (with|to|on to) (a friend|someone|a coworker|a colleague|your (friends|followers))\b",
+    r"\bshare with (a friend|someone) (who|that)\b", r"\bshare (this )?if (you|u)\b", r"\bplease (repost|rt|retweet)\b",
 ]
 FILLER_CLOSERS = [r"\bthoughts\s*\?", r"\bagree\s*\?", r"\bwhat do you think\s*\?", r"👇"]
 AI_TELLS = [

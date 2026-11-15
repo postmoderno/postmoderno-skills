@@ -104,6 +104,30 @@ class WorkflowTests(unittest.TestCase):
         self.assertTrue(any("engagement bait" in n for n in post["notes"]))
         self.assertTrue(any("possible AI tell" in n for n in post["notes"]))
 
+    def test_share_pushes_are_bait_but_sharing_news_is_not(self):
+        def bait(text):
+            return any("engagement bait" in n for n in checker.check_post(text, 280)["notes"])
+
+        for text in (
+            "Share this with a friend who still schedules by hand",
+            "Send it to someone who needs it",
+            "Share this thread with someone",
+            "Forward this to a friend",
+            "Share with a friend who needs this",
+            "Share if you agree",
+            "Please repost",
+        ):
+            self.assertTrue(bait(text), text)
+        for text in (
+            "Wanted to share this tool we built",
+            "Please share your error message",
+            "We send it to your inbox every Monday",
+            "Send it to your editor for review",
+            "Share it with your team in one click",
+            "I'll share if people want the template",
+        ):
+            self.assertFalse(bait(text), text)
+
     def test_mentions_exclude_email_and_invalid_handles(self):
         result = checker.check_post("a@b.com @real_user @abcdefghijklmnop @пример", 280)
         self.assertEqual(result["mentions"], ["@real_user"])
