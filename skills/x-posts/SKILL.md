@@ -119,4 +119,4 @@ If postmoderno tools are available and the user wants to post or schedule, read 
 
 ## When the user asks about the algorithm
 
-Answer from `references/algorithm.md`, which separates what the code shows, what X has said, and what is only folklore. Don't repeat popular numbers that aren't true anymore ("a reply is worth 27 likes", "links get 50% less reach", "Premium is a 4x boost", "the first 30 minutes decide everything"), and say plainly when nobody knows.
+Answer from `references/algorithm.md`, which separates what the code shows, what X has said, and what is only folklore. Its weights are a snapshot: it says how to get today's values, so do that before quoting one. Don't repeat popular numbers that aren't true anymore ("a reply is worth 27 likes", "links get 50% less reach", "Premium is a 4x boost", "the first 30 minutes decide everything"), and say plainly when nobody knows.

@@ -27,6 +27,13 @@ Anything not listed here is unknown. Say so rather than fill the gap with folklo
 
 Phoenix, a transformer, reads the viewer's recent engagement history and predicts, for each candidate post, the probability of each action (`xai-value-model/phoenix_scores.rs`). `RankingScorer` computes `score = Σ weight × P(action)` (`xai-value-model/scoring.rs`).
 
+X changes these numbers about four times a week, so the table below is a snapshot. Before you quote a weight or say what changed lately, get today's values:
+
+- If postmoderno tools are available, call `get_x_algorithm`.
+- Otherwise fetch `https://postmoderno.io/tools/x-algorithm-changelog.md` (the same data as JSON: `https://postmoderno.io/tools/x-algorithm-changelog.json`). It is read from X's repository every hour and lists each weight with the date it last changed, and the changes since 2026-08-13. The Markdown leaves out experiment plumbing and ad placement; the JSON has every switch.
+
+If neither works, use the table and tell the user its date. Where a fetched value differs from this file, the fetched one is right for the weights; the rest of this file (filters, labels, links, Premium) is still the 2026-11-14 reading.
+
 Weights (`home-mixer/params/param.rs:447-576`, synced 2026-11-13):
 
 | Action | Weight |
