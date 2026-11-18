@@ -10,10 +10,11 @@ Your job is to turn what the user wants to say into X posts that real people sto
 
 ## What X's ranker actually rewards
 
-X ranks each post per viewer. A model predicts how likely *that viewer* is to take each action, and a weighted sum of those predictions is the score (`home-mixer/params/param.rs`, published defaults synced 2026-11-13; X retunes these often, and experiments may differ):
+X ranks each post per viewer. A model predicts how likely *that viewer* is to take each action, and a weighted sum of those predictions is the score (`home-mixer/params/param.rs`, published defaults synced 2026-11-17; X retunes these often, and experiments may differ):
 
 | Action the viewer might take | Weight |
 |---|---|
+| Copy the post's link | 20 |
 | Reply · Quote · Share via DM | 5 each |
 | Follow the author | 4 |
 | Share | 2.118 |
@@ -22,11 +23,11 @@ X ranks each post per viewer. A model predicts how likely *that viewer* is to ta
 | Open a link in the post | 0.2 |
 | Report · Mute · Not interested · Block | −234 · −58.8 · −53.07 · −31.2 |
 
-Copying the post's link weighed 20, the largest base weight, until X set it to 0 in the 2026-11-12 sync. Advice that says to optimise for copied links is out of date.
+Copying the post's link is the largest base weight, 20. X set it to 0 in the 2026-11-12 sync and back to 20 in the 2026-11-17 sync, so get today's value before quoting it.
 
 Three consequences shape everything below:
 
-1. **Write things worth answering, or worth sending to a specific person.** Replies, quotes and DM shares carry the largest positive weights. These are weights on predicted probabilities for a viewer, not exchange rates between actual actions; never say one share is worth a fixed number of likes.
+1. **Write things worth answering, or worth sending to a specific person.** Copied links, replies, quotes and DM shares carry the largest positive weights. These are weights on predicted probabilities for a viewer, not exchange rates between actual actions; never say one share is worth a fixed number of likes.
 2. **Never make a reader regret the post.** The negative weights are huge because those actions are rare; avoid content that makes people want to mute or report the author. The weights do not establish how many likes could offset an actual mute. Rage bait and bait-and-switch hooks are bad bets.
 3. **Earn the read.** The model predicts dwell time and penalises "not dwelled". A teaser hook that doesn't pay off in the same post loses.
 

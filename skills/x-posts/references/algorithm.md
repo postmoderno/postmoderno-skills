@@ -25,7 +25,7 @@ Anything not listed here is unknown. Say so rather than fill the gap with folklo
 
 ## Scoring
 
-Phoenix, a transformer, reads the viewer's recent engagement history and predicts, for each candidate post, the probability of each action (`xai-value-model/phoenix_scores.rs`). `RankingScorer` computes `score = Σ weight × P(action)` (`xai-value-model/scoring.rs`).
+Phoenix, a transformer, reads the viewer's recent engagement history and predicts, for each candidate post, the probability of each action (`xai-value-model/phoenix_scores.rs`). `RankingScorer` computes `score = Σ weight × P(action)` (`xai-value-model/scoring.rs`). Code published 2026-11-17 adds a second, multiplicative mode, where the chance of a scroll past and the expected time spent multiply the rest; its switch `ValueModelMode` still reads `"weighted"`, so the sum is what runs.
 
 X changes these numbers about four times a week, so the table below is a snapshot. Before you quote a weight or say what changed lately, get today's values:
 
@@ -34,10 +34,11 @@ X changes these numbers about four times a week, so the table below is a snapsho
 
 If neither works, use the table and tell the user its date. Where a fetched value differs from this file, the fetched one is right for the weights; the rest of this file (filters, labels, links, Premium) is still the 2026-11-14 reading.
 
-Weights (`home-mixer/params/param.rs:447-576`, synced 2026-11-13):
+Weights (`home-mixer/params/param.rs:447-576`, as X published them on 2026-11-18 in commit `9081b332f25634db1c3249ebd3d56fba332fd2e6`, synced 2026-11-17; the lines are the same in the 2026-11-14 snapshot):
 
 | Action | Weight |
 |---|---|
+| share_via_copy_link | 20.0 (0 from the 2026-11-12 sync until the 2026-11-17 sync) |
 | reply | 5.0 (20.0 on original posts between mutual follows) |
 | quote | 5.0 |
 | share_via_dm | 5.0 |
@@ -53,7 +54,6 @@ Weights (`home-mixer/params/param.rs:447-576`, synced 2026-11-13):
 | quoted_click | 0.05 |
 | post_unexplored | 0.015 (in-network posts only by default) |
 | cont_dwell_time | 0.0075 |
-| share_via_copy_link | 0 (20.0 from 2026-08-13 until the 2026-11-12 sync) |
 | video_open, video quality view, profile click | 0 |
 | not_dwelled | −0.02 |
 | block_author | −31.2 |
@@ -65,7 +65,7 @@ How to read them (the repo's own warning, `README.md`): weights multiply the *pr
 
 `cont_click_dwell_time` and `cont_dwell_time` multiply a predicted amount of time instead of a probability, so don't compare them with the other rows.
 
-X retunes these values. The main changes between the first published weights (2026-08-13) and the 2026-11-13 sync: share_via_copy_link 20 → 0 (2026-11-12 sync, in the repo 2026-11-13), like 0.5 → 0.708, not interested −43.2 → −53.07, click 0.4 → 0.274, share 2.0 → 2.118, dwell 0 → 0.05, cont_click_dwell_time 0 → 0.385, cont_dwell_time 0.004 → 0.0075, video open 0.05 → 0 (it was 0.02 before the 2026-11-05 change). Reply, quote, DM, follow, repost and report held still. Check the file before quoting a number.
+X retunes these values. The main changes between the first published weights (2026-08-13) and the 2026-11-17 sync: share_via_copy_link 20 → 0 → 20 (cut in the 2026-11-12 sync, in the repo 2026-11-13; restored in the 2026-11-17 sync, in the repo 2026-11-18), like 0.5 → 0.708, not interested −43.2 → −53.07, click 0.4 → 0.274, share 2.0 → 2.118, dwell 0 → 0.05, cont_click_dwell_time 0 → 0.385, cont_dwell_time 0.004 → 0.0075, video open 0.05 → 0 (it was 0.02 before the 2026-11-05 change). Reply, quote, DM, follow, repost and report held still. Check the file before quoting a number.
 
 Bookmarks are a training label but carry **no weight** in the score.
 
@@ -77,7 +77,7 @@ Bookmarks are a training label but carry **no weight** in the score.
 
 ## Adjustments after scoring
 
-The author diversity and out-of-network values below are defaults in `vm-ranker/params.rs`, which doesn't follow the synced file: it still lists the like at 0.5 and share_via_copy_link at 20. Treat them as approximate.
+The author diversity and out-of-network values below are defaults in `vm-ranker/params.rs`, which doesn't follow the synced file: it still lists the like at 0.5. Treat them as approximate.
 
 - **Author diversity** (`vm-ranker/params.rs:175-192`): the k-th extra post from the same author in one response is multiplied by `0.75·0.5^k + 0.25`, giving ×1, ×0.625, ×0.44, ×0.34 and never below ×0.25.
 - **Out-of-network discount**: ×0.75 for posts from accounts the viewer doesn't follow, and also for replies and reposts from accounts they do follow.
